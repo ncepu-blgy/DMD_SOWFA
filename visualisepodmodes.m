@@ -88,7 +88,7 @@ if statesused < 100000
     subplot(5,2,9)
     plotmode(x,y,z,u,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
     
-    mode=120;
+    mode=length(f);
     %mode=52;
     subplot(5,2,10)
     plotmode(x,y,z,u,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
@@ -196,6 +196,6 @@ elseif statesused > 100000
     export_fig(fig6,strcat(dirdmd,'/image','podmodesv'),'-nocrop','-m2'); 
 end
 
-printresults(f,P,LambdaDiag,damping,method,dirdmd)
+
 
 end

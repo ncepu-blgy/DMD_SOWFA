@@ -135,4 +135,4 @@ export_fig(figure460,strcat(dirdmd,'/image','polescomplexplane'),'-nocrop','-m2'
  hold off
  export_fig(fig403,strcat(dirdmd,'/image','poweraccountedforwithsv'),'-nocrop','-m2');
  
-
+printresults(f,P,LambdaDiag,damping,method,dirdmd)

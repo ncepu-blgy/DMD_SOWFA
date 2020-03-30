@@ -1,4 +1,4 @@
-function []=visualisefirstresults(dirName,rho,option)
+function []=visualisefirstresults(dirName,rho,option,maindir)
 
 if option == 1
     
@@ -34,21 +34,28 @@ if option == 1
         [nTurbine,timeyaw,dt,nVal,nacelleYaw] = readTurbineOutputGlobal(dirName{j}, 'nacelleYaw');
 
     end
-    
-    if dirName{1}=='steps_yaw'
+   
+    if strcmp(dirName{1},'steps_yaw')
         avoid=1;
+        dir=strcat(maindir,'sim_id_eval');
+        
     else
         avoid=10;
+        dir=strcat(maindir,'sim_val_eval');
     end
+    
+   if ~exist(dir,'dir') 
+       mkdir(dir);
+   end
         
-
     time=time1(1); 
     QQ1=min(size(rotSpeed,1),size(torqueGen,1));
     beginplotindex=1;
     
-
     %%  POWER
-        figure(1*avoid)
+        fig1=figure(1*avoid);
+        fig1.Visible='off';
+        set(gcf,'color','w','Position', get(0, 'Screensize'));    
         i=1;
         subplot(2,1,i);
         plot(time3(beginplotindex:end)-time(1),powerGenerator(beginplotindex:end,i)./1e6/rho,'LineWidth',1.8);
@@ -62,7 +69,6 @@ if option == 1
         xlabel('Time [ min ]')
         ylabel('Power [MW]')
         set(gca,'fontsize', 14)
-        
         i=2;
         subplot(2,1,i);
         plot(time3(beginplotindex:end)-time(1),powerGenerator(beginplotindex:end,i)./1e6/rho,'LineWidth',1.8); 
@@ -75,13 +81,15 @@ if option == 1
         xlabel('Time [ min ]')
         ylabel('Power [MW]')
         set(gca,'fontsize', 14)
+        export_fig(fig1,strcat(dir,'/power'),'-nocrop','-m2'); 
         
         %% TOTAL WIND FARM POWER
         a=powerGenerator(beginplotindex:end,1)./1e6/rho;
         b=powerGenerator(beginplotindex:end,2)./1e6/rho;
         c=a+b;
-        figure(2*avoid)
-      
+        fig2=figure(2*avoid);
+        fig2.Visible='off';
+        set(gcf,'color','w','Position', get(0, 'Screensize'));  
         p=plot(time3(beginplotindex:end)-time(1), c(beginplotindex:end),'LineWidth',1.8);
         p.Color=[0 0.8 0.2];
         hold on
@@ -94,11 +102,13 @@ if option == 1
         xlabel('Time [ min ]')
         ylabel('Power [MW]')
         set(gca,'fontsize', 14)
-        
+        export_fig(fig2,strcat(dir,'/windfarm'),'-nocrop','-m2'); 
         
 
     %%  TORQUE
-        figure(3*avoid)
+        fig3=figure(3*avoid);
+        fig3.Visible='off';
+        set(gcf,'color','w','Position', get(0, 'Screensize'));  
         i=1;
         subplot(2,1,i);
         plot(time5(3:end)-time(1),torqueGen(3:end,i)*10^-3,'LineWidth',1.8)
@@ -118,9 +128,11 @@ if option == 1
         xlabel('Time instant [ ]')
         ylabel('Torque [kNm]')
         set(gca,'fontsize', 14)
-
+        export_fig(fig3,strcat(dir,'/Torque'),'-nocrop','-m2'); 
      %% ROTATIONAL SPEED
-        figure(4*avoid)
+        fig4=figure(4*avoid);
+        fig4.Visible='off';
+        set(gcf,'color','w','Position', get(0, 'Screensize'));  
         i=1;
         subplot(2,1,i);
         plot(time7-time(1),rotSpeed(:,i),'LineWidth',1.8); 
@@ -142,7 +154,7 @@ if option == 1
         xlabel('Time instant [ ]')
         ylabel('\Omega [rad/s]')
         set(gca,'fontsize', 14)
-
+        export_fig(fig4,strcat(dir,'/RotSpeed'),'-nocrop','-m2'); 
      %% THRUST
         figure(5*avoid)
         i=1;
@@ -172,7 +184,9 @@ if option == 1
         set(gca,'fontsize', 14)
 
      %% YAW (relevant for yaw control)
-        figure(6*avoid)
+        fig6=figure(6*avoid);
+        fig6.Visible='off';
+        set(gcf,'color','w','Position', get(0, 'Screensize'));
         i=1;
         subplot(2,1,i);
         plot(timeyaw(1:QQ1)-time(1),nacelleYaw(1:QQ1,i),'LineWidth',1.8);
@@ -201,10 +215,12 @@ if option == 1
         xlabel('Time [ min ]')
         ylabel('Yaw angle [deg]')
         set(gca,'fontsize', 14)
-        
+        export_fig(fig6,strcat(dir,'/Yaw'),'-nocrop','-m2'); 
         %% CONTROL LAW
         
-        figure(7*avoid)
+        fig7=figure(7*avoid);
+        fig7.Visible='off';
+        set(gcf,'color','w','Position', get(0, 'Screensize'));
         i=1;
         subplot(2,1,i)
         K1=torqueGen(:,i)./(rotSpeed(:,i).^2);
@@ -236,7 +252,7 @@ if option == 1
         ylabel('Gain constant')
         set(gca,'fontsize', 14)
         ylim([2700 2800])
-        
+        export_fig(fig7,strcat(dir,'/Control_Law'),'-nocrop','-m2'); 
         
         %% THRUST PLOTS
 
@@ -349,8 +365,10 @@ if option == 1
 % 
 %         figure(400)
 % 
-         figure(8*avoid)
-         subplot(3,2,1)
+         fig8=figure(8*avoid);
+         fig8.Visible='off';
+         set(gcf,'color','w','Position', get(0, 'Screensize'));
+         subplot(3,1,1)
          plot(time7(1:QQ1)-time(1),thrustVec{j}(:,1)/1e3,'LineWidth',1.8); 
          hold on; 
          grid on
@@ -361,8 +379,7 @@ if option == 1
          set(gca,'XTick',(0:60*5:(max(timeyaw)-time(1))))
          ax.XTickLabel = {' ','5','10','15','20','25','30','35'};
          set(gca,'fontsize', 14)
-% 
-         subplot(3,2,3)
+         subplot(3,1,2)
          plot(time7(1:QQ1)-time(1),thrustVec{j}(:,3)/1e3,'LineWidth',0.2); 
          hold on; 
          grid on
@@ -373,9 +390,7 @@ if option == 1
          set(gca,'XTick',(0:60*5:(max(timeyaw)-time(1))))
          ax.XTickLabel = {' ','5','10','15','20','25','30','35'};
          set(gca,'fontsize', 14)
-%      
-% 
-         subplot(3,2,5)
+         subplot(3,1,3)
          plot(time7(1:QQ1)-time(1),thrustVec{j}(:,5)/1e3,'LineWidth',1); 
          hold on; 
          grid on
@@ -386,10 +401,14 @@ if option == 1
          set(gca,'XTick',(0:60*5:(max(timeyaw)-time(1))))
          ax.XTickLabel = {' ','5','10','15','20','25','30','35'};
          set(gca,'fontsize', 14)
+         export_fig(fig8,strcat(dir,'/Loads_Turbine1'),'-nocrop','-m2'); 
 % 
 % 
 %        %even plots -> turbine 2
-         subplot(3,2,2)
+         fig9=figure(9*avoid);
+         fig9.Visible='off';
+         set(gcf,'color','w','Position', get(0, 'Screensize'));
+         subplot(3,1,1)
          plot(time7(1:QQ1)-time(1),thrustVec{j}(:,2)/1e3,'LineWidth',1); 
          hold on; 
          grid on
@@ -400,8 +419,7 @@ if option == 1
          set(gca,'XTick',(0:60*5:(max(timeyaw)-time(1))))
          ax.XTickLabel = {' ','5','10','15','20','25','30','35'};
          set(gca,'fontsize', 14)
-% 
-         subplot(3,2,4)
+         subplot(3,1,2)
          plot(time7(1:QQ1)-time(1),thrustVec{j}(:,4)/1e3,'LineWidth',1); 
          hold on; 
          grid on
@@ -412,8 +430,7 @@ if option == 1
          set(gca,'XTick',(0:60*5:(max(timeyaw)-time(1))))
          ax.XTickLabel = {' ','5','10','15','20','25','30','35'};
          set(gca,'fontsize', 14)
-% 
-         subplot(3,2,6)
+         subplot(3,1,3)
          plot(time7(1:QQ1)-time(1),thrustVec{j}(:,6)/1e3,'LineWidth',1); 
          hold on;
          grid on
@@ -424,8 +441,11 @@ if option == 1
          set(gca,'XTick',(0:60*5:(max(timeyaw)-time(1))))
          ax.XTickLabel = {' ','5','10','15','20','25','30','35'};
          set(gca,'fontsize', 14)
-        
+         export_fig(fig9,strcat(dir,'/Loads_Turbine2'),'-nocrop','-m2'); 
+         
+           close all
 else
 
+  
 
 end

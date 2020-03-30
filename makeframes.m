@@ -1,4 +1,4 @@
-function [dirpathwake,dirpathveldef]=makeframes(D,dirpathwake)
+function [dirpathwake,dirpathveldef]=makeframes(D,dirpathwake,cases)
 %set figure renderer to painters to avoid error when using export fig 
 
 %% Open new or exisintg directoy path for 
@@ -19,7 +19,6 @@ warning on
 
 %% Read direct simulation data for turbine operation features
 n=1;
-cases = {'steps_yaw'};
 
 [nTurbine,time4,dt,nVal,thrust]        = readTurbineOutputGlobal(cases{n},'rotorAxialForce');
 [nTurbine,time4,dt,nVal,thrustv]       = readTurbineOutputGlobal(cases{n},'rotorVerticalForce');

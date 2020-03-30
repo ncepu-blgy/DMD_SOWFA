@@ -23,8 +23,9 @@ for t=1:length(timevec)
     %deltainst(:,t)=norm(deltastate(:,t));
 end
 
-figure(550)
-
+figure550=figure;
+figure550.Visible='off';
+set(gcf,'color','w','Position', get(0, 'Screensize')); 
 sid=scatter(timevec,meandeltainstp,'o');
 hold on
 sid.MarkerFaceColor = [0.2 0.6 0.8];
@@ -45,6 +46,5 @@ grid on
 grid minor
 hold off
 ytickformat('percentage')
-
-set(gcf,'color','w','Position', get(0, 'Screensize'));    
-export_fig(figure(550),strcat(dirdmd,'/image','statestimeerror'),'-nocrop','-m2'); 
+   
+export_fig(figure550,strcat(dirdmd,'/image','statestimeerror'),'-nocrop','-m2'); 

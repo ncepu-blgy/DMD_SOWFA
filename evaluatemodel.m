@@ -19,8 +19,7 @@ if a
 
     %% GRAPHICAL VISUALISAITON OF MODEL PREDICTION AND TRUE SIMULATION (IDENTIFICATION) RESULTS
     fig1=figure(1000+si);
-    fig1.Visible='off';
-    set(gcf,'color','w','Position', get(0, 'Screensize'));
+    set(gcf,'color','w','Position', get(0, 'Screensize'),'Visible','off');
     subplot(2,1,1)
     plot([Outputs(1,1:end-1);]','LineWidth',1.6'); %1
     hold on; 

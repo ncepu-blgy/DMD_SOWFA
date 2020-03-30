@@ -1,4 +1,4 @@
-function [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd]=dynamicmodedecomposition(states, Inputs, Outputs, Deterministic ,method,r,maindir)
+function [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd]=dynamicmodedecomposition(states, Inputs, Outputs, Deterministic ,method,r,maindir,f)
 
 % This function aims to build a reduced order model from the states,
 % input/output information and deterministic states gathered in the
@@ -107,6 +107,8 @@ if method==1 %dmdc algortihm
 
     for si=1:1:r
         
+        part=2; subpart=5; [f]= MPC_progress(part,subpart,f,si,r);
+        
         Util=U(:,1:si);
         Sigtil=Sig(1:si,1:si);
         Vtil=V(:,1:si);
@@ -124,7 +126,8 @@ if method==1 %dmdc algortihm
         approxB{si} = Uhat'*(X_p)*Vtil*inv(Sigtil)*U_2';
         approxC{si}=[Y1(:,1:end-1);Y2(:,1:end-1)]*pinv(([So(1:si,1:si)*Vo(:,1:si)'; U1(:,1:end-1)]));
         sys_red{si}=ss(approxA{si},approxB{si},approxC{si}(:,1:si),approxC{si}(:,si+1:end),2);
-              
+        
+        
         [FITje,OMEGA,DAMPING,fig1]=evaluatemodel(sys_red,si,Inputs,Outputs,FITje,OMEGA,DAMPING,'identification');
         warning off
         export_fig(fig1,strcat(dirdmd,'/image',num2str(10000+si)),'-nocrop','-m2')
@@ -163,6 +166,8 @@ elseif method==2 %ioDMD
     DAMPING={};
 
     for si=1:1:r
+        
+        part=2; subpart=5; [f]= MPC_progress(part,subpart,f,si,r);
         
         Util=U(:,1:si);
         Sigtil=S(1:si,1:si);
@@ -223,6 +228,7 @@ elseif method==3
     DAMPING={};
 
     for si=1:1:r
+        part=2; subpart=5; [f]= MPC_progress(part,subpart,f,si,r);
         
         Util=U(:,1:si);
         Sigtil=S(1:si,1:si);
@@ -325,6 +331,7 @@ elseif method==4
     OMEGA={};
     DAMPING={};
     for si=1:1:(r+a(1))
+        part=2; subpart=5; [f]= MPC_progress(part,subpart,f,si,r);
         
         Attt{si}=U(:,1:si)'*QQ(:,2:end)*[S(1:si,1:si)*V(:,1:si)';...
             [U1(:,1:end-1)]]'*inv([S(1:si,1:si)*V(:,1:si)'*V(:,1:si)*S(1:si,1:si) S(1:si,1:si)*V(:,1:si)'* [U1(:,1:end-1)]'; [U1(:,1:end-1)]*V(:,1:si)*S(1:si,1:si) [U1(:,1:end-1)]*[U1(:,1:end-1)]' ] );

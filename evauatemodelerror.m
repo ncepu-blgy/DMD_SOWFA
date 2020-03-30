@@ -29,6 +29,9 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
     taerror=taerror';
     
     fig503= figure('Units', 'pixels', 'pos', [75 75 1155 650],'color','white','Visible', 'off');
+    set(gcf,'color','w','Position', get(0, 'Screensize')); 
+    
+    fig503.Visible='off';
     UmeanAbs_sh_u = reshape(taerror,Y,X,Z);
     [Xm_shs,Ym_shs] = meshgrid(xx-500,(yy-500));
     k=9; 
@@ -49,6 +52,7 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
     ax.XTickLabel = {'0D','1D','2D','3D','4D','5D','6D','7D','8D','9D','10D','11D'};
     ylabel('Distance [m]');
     pbaspect([4 1 1])
+    
     titlee=title(['Time-averaged error']);
     titlee.FontSize=18;
     titlee.FontWeight='normal';
@@ -57,14 +61,15 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
     set(gca,'fontsize', 16) 
     hold off 
     
-    set(gcf,'color','w','Position', get(0, 'Screensize'));    
     export_fig(fig503,strcat(dirdmd,'/image','onetimeerror'),'-nocrop','-m2'); 
-    
+    close all
     %% EVALUATE INSTANTANEOUS ERROR
     %delta=abs((real(states(:,1:end-1))-real(statesrebuild)))./abs((states(:,1:end-1)))*100;
     
     %% First figure
     fig504= figure('Units', 'pixels', 'pos', [75 75 1155 650],'color','white','Visible', 'off');
+    set(gcf,'color','w','Position', get(0, 'Screensize')); 
+    fig504.Visible='off';
     
     i=405;
     subplot(5,2,1)
@@ -105,16 +110,18 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
     i=490;
     subplot(5,2,10)
     plotsnapshothhdeviation(delta,xx,yy,yawanglers, D, i,X,Y,Z,Uups,Xm_sh,Ym_sh)
-    
     titlee=suptitle(['Instantaneous deviation of DMD flow field reconstruction with relation to SOWFA for different time instances']);
+    titlee.Visible='off';
     titlee.FontSize=18;
     
-    set(gcf,'color','w','Position', get(0, 'Screensize'));    
-    shg
     export_fig(fig504,strcat(dirdmd,'/image','errorvariationtime'),'-nocrop','-m2'); 
-    
+    close all
     %% INSTANTANEOUS SHOT DURING CRITICAL MOMENT
     fig505= figure('Units', 'pixels', 'pos', [75 75 1155 650],'color','white','Visible', 'off');
+    set(gcf,'color','w','Position', get(0, 'Screensize')); 
+    
+     
+    fig505.Visible='off';
     
     i=470;
     subplot(3,1,1)
@@ -136,10 +143,10 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
      
     titlee=suptitle(['Instantaneous deviation of DMD flow field reconstruction with relation to SOWFA. Time: ',num2str(minutos)...
         ,' minutes and ',num2str(segundos),' seconds']);
-    titlee.FontSize=18;
-    
-    set(gcf,'color','w','Position', get(0, 'Screensize'));    
+
+    titlee.FontSize=18; 
+  
     export_fig(fig505,strcat(dirdmd,'/image','errorvariationtime2'),'-nocrop','-m2'); 
-    
+    close all
     
     
