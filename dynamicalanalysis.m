@@ -43,14 +43,14 @@ elseif method==3 %extioDMD
         bt=phii\[Deterministic(:,1);X(1:n,1)];
         phi=phii(fromhere:end,fromhere:end);
         b=bt(fromhere:end);
-        P=(diag(phi'*phi)); 
+        P=abs(b);
         
     elseif scaling==1
-        Ahat=(S(1:mn,1:mn)^(-1/2)) * sys_red{mn}.A * (S(1:mn,1:mn)^(1/2));
+        Ahat=(S(1:mn,1:mn)^(-1/2)) * sys_red{mn}.A(fromhere:end,fromhere:end) * (S(1:mn,1:mn)^(1/2));
         [What,Dhat]=eig(Ahat);
         W_r=(S(1:mn,1:mn)^(1/2))*What;
         %Phi=U*W_r;
-        phi=X_p*V(:,1:mn)/S(1:mn,1:mn)*W_r;
+        phi=X_p(1:n,:)*V(:,1:mn)/S(1:mn,1:mn)*W_r;
         P=(diag(phi'*phi));  
     end
 
