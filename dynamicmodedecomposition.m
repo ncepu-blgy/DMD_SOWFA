@@ -1,4 +1,4 @@
-function [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd]=dynamicmodedecomposition(states, Inputs, Outputs, Deterministic ,method,r,maindir,f)
+function [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd,x]=dynamicmodedecomposition(states, Inputs, Outputs, Deterministic ,method,r,maindir,f)
 
 % This function aims to build a reduced order model from the states,
 % input/output information and deterministic states gathered in the
@@ -49,10 +49,38 @@ Xd     =Deterministic(:,1:end-1);
 Xd_p   =Deterministic(:,2:end);
 
  
-%% (1) DMDc - Dynamic Mode Decomposition with Control
-
-if method==1 %dmdc algortihm
+%% (0) DMD - there is no control action
+if method==0 %dmd algortihm
     
+     dirdmd='DMDresults_DMD';
+     dirdmd=strcat(maindir,dirdmd);
+    if ~exist(dirdmd,'dir') 
+        mkdir(dirdmd);
+    end
+    
+    [U, S, V]=svds(X,r);
+
+    for si=1:1:r
+        
+        part=2; subpart=5; [f]= MPC_progress(part,subpart,f,si,r);
+        
+        Util=U(:,1:si);
+        Sigtil=S(1:si,1:si);
+        Vtil=V(:,1:si);
+        
+        approxA{si} = Util'*(X_p)*Vtil*inv(Sigtil);
+        approxB{si} = zeros(si, 1);
+        approxC{si}=zeros(2,si);
+        approxD{si}=zeros(2,1);
+        sys_red{si}=ss(approxA{si},approxB{si},approxC{si},approxD{si},2);
+       
+        FITje=0;
+    end
+    
+ 
+elseif method==1 %dmdc algortihm
+%%  (1) DMD - there is a extrnal forcing term
+     
      dirdmd='DMDresults_DMDc';
      dirdmd=strcat(maindir,dirdmd);
     if ~exist(dirdmd,'dir') 
@@ -104,6 +132,7 @@ if method==1 %dmdc algortihm
     FITje=zeros(2, r);
     OMEGA={};
     DAMPING={};
+    x=cell(r,1);
 
     for si=1:1:r
         
@@ -118,27 +147,24 @@ if method==1 %dmdc algortihm
         Vbar=Vf(:,1:si);
         
         n=size(X,1);
-        q=size(Ups,1);
+        q=size(inp,1);
         U_1=Util(1:n,:);
         U_2=Util(n+q:n+q,:);
         
         approxA{si} = Uhat'*(X_p)*Vtil*inv(Sigtil)*U_1'*Uhat;
         approxB{si} = Uhat'*(X_p)*Vtil*inv(Sigtil)*U_2';
-        approxC{si}=[Y1(:,1:end-1);Y2(:,1:end-1)]*pinv(([So(1:si,1:si)*Vo(:,1:si)'; U1(:,1:end-1)]));
-        sys_red{si}=ss(approxA{si},approxB{si},approxC{si}(:,1:si),approxC{si}(:,si+1:end),2);
+        approxC{si}=eye(si,si);
+        approxD{si}=zeros(si,1);
+        sys_red{si}=ss(approxA{si},approxB{si},approxC{si},approxD{si},2);
         
-        
-        [FITje,OMEGA,DAMPING,fig1]=evaluatemodel(sys_red,si,Inputs,Outputs,FITje,OMEGA,DAMPING,'identification');
-        warning off
-        export_fig(fig1,strcat(dirdmd,'/image',num2str(10000+si)),'-nocrop','-m2')
-        warning on
+        close all
     end
-        
-    close all
-    [fig200]=VAFpermodes(FITje,r,{});
-    warning off
-    export_fig(fig200,strcat(dirdmd,'/image',num2str(10000+si+1)),'-nocrop','-m2')
-    warning on
+    [xo]=dinit(sys_red{r}.A,sys_red{r}.B,sys_red{r}.C,sys_red{r}.D,[Inputs]',[Uhat'*states]'); 
+    [ysim, t, xout]=lsim(sys_red{r}, [Inputs]',[],xo);   
+    x=ysim;
+    Xd={};    
+    FITje=0;
+    
            
   %% (2) ioDMD: Input Output Dynamic Mode Decomposition 
   
@@ -164,6 +190,7 @@ elseif method==2 %ioDMD
     FITje=zeros(2, r);
     OMEGA={};
     DAMPING={};
+    x=cell(r,1);
 
     for si=1:1:r
         
@@ -182,7 +209,7 @@ elseif method==2 %ioDMD
         
         sys_red{si}=ss(A{si},B{si},C{si},D{si},2);
            
-        [FITje,OMEGA,DAMPING,fig1]=evaluatemodel(sys_red,si,Inputs,Outputs,FITje,OMEGA,DAMPING,'identification');
+        [FITje,OMEGA,DAMPING,fig1,x]=evaluatemodel(sys_red,si,Inputs,Outputs,FITje,OMEGA,DAMPING,'identification',x);
         warning off
         export_fig(fig1,strcat(dirdmdident,'/image',num2str(10000+si)),'-nocrop','-m2')
         warning on
@@ -226,6 +253,7 @@ elseif method==3
     FITje=zeros(2, r);
     OMEGA={};
     DAMPING={};
+    x=cell(r,1);
 
     for si=1:1:r
         part=2; subpart=5; [f]= MPC_progress(part,subpart,f,si,r);
@@ -244,7 +272,7 @@ elseif method==3
         sys_red{si}=ss(A{si},B{si},C{si},D{si},2);
         %same as before
            
-        [FITje,OMEGA,DAMPING,fig1]=evaluatemodel(sys_red,si,Inputs,Outputs,FITje,OMEGA,DAMPING,'identification');
+        [FITje,OMEGA,DAMPING,fig1,x]=evaluatemodel(sys_red,si,Inputs,Outputs,FITje,OMEGA,DAMPING,'identification',x);
         warning off
         export_fig(fig1,strcat(dirdmdident,'/image',num2str(10000+si)),'-nocrop','-m2')
         warning on

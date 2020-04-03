@@ -2,7 +2,7 @@ function [states,meansteadystate,scalingfactor]=preprocessstates(states)
 
     %find mean of steady state
     %assuming stady state is from 
-     steadystates=states(:,1:204);
+     steadystates=states(:,100:204);
  
      for i=1:size(steadystates,1)
          meansteadystate(i)=mean(steadystates(i,:));

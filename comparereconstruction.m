@@ -21,10 +21,7 @@ function []=comparereconstruction(states, statesrebuild,D,dirdmd,x,y,z,Decimate,
     
     %% First figure
     fig500= figure('Units', 'pixels', 'pos', [75 75 1155 650],'color','white','Visible', 'off');
-    titlee=suptitle(['DMD flow field reconstruction                                                                                SOWFA flow field']);
-    titlee.FontSize=18; 
     set(gcf,'color','w','Position', get(0, 'Screensize'));    
-    fig500.Visible='off';
     
     [Xm_shs,Ym_shs] = meshgrid(xx-500,(yy-500));
     
@@ -58,14 +55,14 @@ function []=comparereconstruction(states, statesrebuild,D,dirdmd,x,y,z,Decimate,
     subplot(5,2,10)
     plotsnapshothh(states,xx,yy,yawanglers, D, i,X,Y,Z,Uups,Xm_sh,Ym_sh)
     
+    [ax4,h3]=suplabel('DMD flow field reconstruction                                                                                               SOWFA flow field'  ,'t');
+    set(h3,'FontSize',16)
     export_fig(fig500,strcat(dirdmd,'/image','reconsversusSOWFA'),'-nocrop','-m2'); 
  
    
     %% SECOND FIGURE
     fig502= figure('Units', 'pixels', 'pos', [75 75 1155 650],'color','white','Visible', 'off');
-    
     set(gcf,'color','w','Position', get(0, 'Screensize'));  
-    fig502.Visible='off';
     
     [Xm_shs,Ym_shs] = meshgrid(xx-500,(yy-500));
     
@@ -99,8 +96,9 @@ function []=comparereconstruction(states, statesrebuild,D,dirdmd,x,y,z,Decimate,
     subplot(5,2,10)
     plotsnapshothh(states,xx,yy,yawanglers, D, i,X,Y,Z,Uups,Xm_sh,Ym_sh)
     
-    titlee=suptitle(['DMD flow field reconstruction                                                                                 SOWFA flow field']);
-    titlee.FontSize=18;
+    [ax4,h3]=suplabel('DMD flow field reconstruction                                                                                               SOWFA flow field'  ,'t');
+    set(h3,'FontSize',16)
+    
     export_fig(fig502,strcat(dirdmd,'/image','reconsversusSOWFA2'),'-nocrop','-m2'); 
     close all
     

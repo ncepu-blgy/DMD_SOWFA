@@ -110,17 +110,15 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
     i=490;
     subplot(5,2,10)
     plotsnapshothhdeviation(delta,xx,yy,yawanglers, D, i,X,Y,Z,Uups,Xm_sh,Ym_sh)
-    titlee=suptitle(['Instantaneous deviation of DMD flow field reconstruction with relation to SOWFA for different time instances']);
-    titlee.Visible='off';
-    titlee.FontSize=18;
     
+    [ax4,h3]=suplabel('Instantaneous deviation of DMD flow field reconstruction with relation to SOWFA for different time instances','t');
+    set(h3,'FontSize',16)
     export_fig(fig504,strcat(dirdmd,'/image','errorvariationtime'),'-nocrop','-m2'); 
     close all
     %% INSTANTANEOUS SHOT DURING CRITICAL MOMENT
     fig505= figure('Units', 'pixels', 'pos', [75 75 1155 650],'color','white','Visible', 'off');
     set(gcf,'color','w','Position', get(0, 'Screensize')); 
     
-     
     fig505.Visible='off';
     
     i=470;
@@ -140,11 +138,10 @@ function []=evauatemodelerror(states, statesrebuild,D,dirdmd,filename,dirName,x,
      
      minutos=integ;
      segundos=60*fract;
-     
-    titlee=suptitle(['Instantaneous deviation of DMD flow field reconstruction with relation to SOWFA. Time: ',num2str(minutos)...
-        ,' minutes and ',num2str(segundos),' seconds']);
 
-    titlee.FontSize=18; 
+    [ax4,h3]=suplabel(['Instantaneous deviation of DMD flow field reconstruction with relation to SOWFA. Time: ',num2str(minutos)...
+        ,' minutes and ',num2str(segundos),' seconds'],'t');
+    set(h3,'FontSize',16)
   
     export_fig(fig505,strcat(dirdmd,'/image','errorvariationtime2'),'-nocrop','-m2'); 
     close all

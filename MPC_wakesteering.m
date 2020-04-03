@@ -40,18 +40,21 @@ part=0; subpart=1; [f]= MPC_progress(part,subpart,{},{},{});
     close all
     addpath('Functions')
     
-    
+    maindir='/Volumes/NASSIR/MATLAB/'; %DEFINE MAIN DIRECTORY IN USERS COMPUTER TO STORE ALL RESULTS
     subpart=2; [f]= MPC_progress(part,subpart,f,{},{});
-    pitchmode=1;
+    pitchmode=0; %0 for yaw control and 1 for pith control
     
     if pitchmode==0
-        %dirName={'steps_yaw'}; %directory for identification data: full results exported from SOWFA
-        dirName={'/Volumes/NASSIR/Data_Sets/Steps_yaw_low_freq'}; %low frequency simulation
+        dirName={'steps_yaw'}; %directory for identification data: full results exported from SOWFA
         dirName_val={'steps_yaw_val'}; %directory for identification data: full resulsts exported from SOWFA
     elseif pitchmode==1
         dirName={'steps_theta_YT';}; %directory for identification data: full results exported from SOWFA
         dirName_val={'steps_theta_YT_val'}; %directory for identification data: full resulsts exported from SOWFA
     end
+    
+    detrendingstates=1; %1 to take mean flow 
+    method=2; %0: DMD ; 1:DMDc; 2:ioDMD; 3:extioDMD
+    koopman=1;
     videos=0;
     snapshots=0;
     
@@ -68,9 +71,9 @@ part=1; subpart=1; [f]= MPC_progress(part,subpart,f,{},{});
     subpart=2; [f]= MPC_progress(part,subpart,f,{},{});
     if pitchmode==0
         %analysis='Yaw/';
-        analysis='YawLowFreq/';
-        %filename='U_data_complete_vec_yaw.mat';
-        filename='/Volumes/NASSIR/Data_Sets/Steps_yaw_low_freq/U_data_complete_vec.mat'; %low freq vector
+        analysis='Yaw/';
+        filename='U_data_complete_vec_yaw.mat';
+        filenamevalid='U_data_complete_vec_yaw_val.mat';
         load(filename) ;
         QQ_u=double(QQ_u);
         QQ_v=double(QQ_v);
@@ -83,23 +86,22 @@ part=1; subpart=1; [f]= MPC_progress(part,subpart,f,{},{});
     end
     
     %define main directory
-    maindir='/Volumes/NASSIR/MATLAB/'; %define directoty in user's computer to store all results
     maindir=strcat(maindir,analysis);
     
     % IDENTIFICATION DATA
-    visualisefirstresults(dirName,rho,1,maindir) %0: skip this; %1: see graphs
+    visualisefirstresults(dirName,rho,0,maindir) %0: skip this; %1: see graphs
     % VALIDATION DATA
-    visualisefirstresults(dirName_val,rho,1,maindir) %0: skip this; %1: see graphs
+    visualisefirstresults(dirName_val,rho,0,maindir) %0: skip this; %1: see graphs
  
     % Make movie from results (identification data, steady state (1500-3000)
     subpart=3; [f]= MPC_progress(part,subpart,f,{},{}); 
     if videos==1
         %second input argument: dirctory to save movies
         [dirpathwake,dirpathveldef]=makeframes(D,strcat(maindir,'MovieWake'),filename);
-        [dirpathfinal]=makefinalframes(D,'/Volumes/NASSIR/MATLAB/Movie_combined');
-        [dirpathpowerinsights]=makeframespowerinsights(D,rho,'/Volumes/NASSIR/MATLAB/power_insights');
-        [dirpathvelfield]=plotvecfield(D,'/Volumes/NASSIR/MATLAB/power_velfield');
-        [dirpathcuthubheightvec]=cuthubheightvec(D,'/Volumes/NASSIR/MATLAB/cuthubheight');
+        [dirpathfinal]=makefinalframes(D,strcat(maindir,'Movie_combined'),filename);
+        [dirpathpowerinsights]=makeframespowerinsights(D,rho,strcat(maindir,'Power_insights'),filename);
+        [dirpathvelfield]=plotvecfield(D,strcat(maindir,'power_velfield'),filename);
+        [dirpathcuthubheightvec]=cuthubheightvec(D,strcat(maindir,'cuthubheight'),filename);
         
         %Movie making. Please specify Frames Per Second (FPS) inside
         makemoviewake('wake_deflection_yawcontrol_sowfa',dirpathwake);
@@ -133,23 +135,22 @@ part=1; subpart=1; [f]= MPC_progress(part,subpart,f,{},{});
 %% (2) DYNAMIC MODE DECOMPOSITION 
 part=2; subpart=1; [f]= MPC_progress(part,subpart,f,{},{}); 
 
-    detrendingstates=1;
     begin=750;
     beg=750;
     
     subpart=2; [f]= MPC_progress(part,subpart,f,{},{}); 
     % Read and process identification data
     [rotSpeed, nacelleYaw, time1,rotorAzimuth,pitch]=readdmdinformation(dirName); %read information from simulation
-    [Inputs, Outputs, Deterministic]=preprocessdmd(beg, rotSpeed,time1,rotorAzimuth,nacelleYaw, pitchmode,pitch ); %preprocess information (resample and only relevant data)
+    [Inputs, Outputs, Deterministic,scalingfactors]=preprocessdmdid(beg, rotSpeed,time1,rotorAzimuth,nacelleYaw, pitchmode,pitch ); %preprocess information (resample and only relevant data)
     
     subpart=3; [f]= MPC_progress(part,subpart,f,{},{}); 
     % Read and process validation data
     [rotSpeed_val, nacelleYaw_val, time1_val,rotorAzimuth_val,pitch_val]=readdmdinformation(dirName_val); %read information from simulation
-    [Inputs_val, Outputs_val, Deterministic_val]=preprocessdmd(beg, rotSpeed_val,time1_val,rotorAzimuth_val,nacelleYaw_val,pitchmode,pitch_val); %preprocess information (resample and only relevant data)
+    [Inputs_val, Outputs_val, Deterministic_val]=preprocessdmdval(beg, rotSpeed_val,time1_val,rotorAzimuth_val,nacelleYaw_val,pitchmode,pitch_val,scalingfactors); %preprocess information (resample and only relevant data)
 
     % Define states to be used for DMD
     states=QQ_u(:,(begin-beg)+1:end); % define states: first hypothesis 
-    %states=[QQ_u(:,(begin-beg)+1:end);QQ_v(:,(begin-beg)+1:end);QQ_w(:,(begin-beg)+1:end)];
+    n=size(states,1);
     
     subpart=4; [f]= MPC_progress(part,subpart,f,{},{}); 
     if detrendingstates
@@ -157,56 +158,90 @@ part=2; subpart=1; [f]= MPC_progress(part,subpart,f,{},{});
     else
     end
     
+    %include non linear observables - Koopman extensions to better recover
+    %non linear dynamics
+    if koopman
+        [nonlobs]=koopmanstateextension(QQ_u, QQ_v, QQ_w,rho);
+        states=[states;nonlobs*ones(1,751)*rho];
+    else
+    end
+    
     subpart=5; [f]= MPC_progress(part,subpart,f,{},{}); 
     r=200; %define truncation level for Singular Value Decomposition 
     
-    [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd]=dynamicmodedecomposition(states,Inputs, Outputs, Deterministic,3,r,maindir,f); 
+on mo    [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd,xstates]=dynamicmodedecomposition(states,Inputs, Outputs, Deterministic,method,r,maindir,f); 
 
 %% (3) DATA VALIDATION 
     part=3; subpart=1; [f]= MPC_progress(part,subpart,f,{},{}); 
     % Validate Models from validation data set
-    [FITje_val,dirdmd_val]=validatemodels(sys_red, Inputs_val,Outputs_val,r,strcat(dirdmd, '/val'),f);
-
+    [FITje_val,dirdmd_val,xstatesvalid]=validatemodels(sys_red, Inputs_val,Outputs_val,r,strcat(dirdmd, '/val'),f);
+    save(strcat(dirdmd,'/FIT.mat'),'FITje_val','FITje');
+     
     subpart=2; [f]= MPC_progress(part,subpart,f,{},{}); 
     % Identification and Validation taks overview
     [modelVAF_val]=idvaloverview(FITje,FITje_val,dirdmd);
-
+    
+    if detrendingstates
+        save(strcat(dirdmd,'/RESULTS.mat'),'sys_red',...
+            'X','X_p','Xd','Inputs','Outputs','Deterministic','Inputs_val',...
+            'Outputs_val','Deterministic_val','U','S','V','dt','r',...
+            'dirdmd','method','meansteadystate','scalingfactor','x','y','z',...
+            'D','xstates','xstatesvalid','n','Decimate');
+    else
+        save(strcat(dirdmd,'/RESULTS.mat'),'sys_red',...
+            'X','X_p','Xd','Inputs','Outputs','Deterministic','Inputs_val',...
+            'Outputs_val','Deterministic_val','U','S','V','dt','r',...
+            'dirdmd','method','x','y','z','D','xstates','xstatesvalid','n','Decimate');
+    end
+    
 %% (4) DYNAMICAL ANALYSIS
     part=4; subpart=1; [f]= MPC_progress(part,subpart,f,{},{}); 
-    [freq,LambdaDiag, P, phi,damping,b]=dynamicalanalysis(sys_red, U, S,V, dt,X_p,X, method,length(sys_red),0,D,9,Deterministic,r,dirdmd);
+    [freq,LambdaDiag, P, phi,damping,b]=dynamicalanalysis(sys_red, U, S,V, dt,X_p,X, method,length(sys_red),0,D,9,Deterministic,r,dirdmd,n,Xd);
     
     subpart=2; [f]= MPC_progress(part,subpart,f,{},{});
     visualisepodmodes(phi,freq, P,x,y,z,Decimate,D,LambdaDiag,damping,method,Xd,dirdmd) 
     
-    podmodes3dim(x,y,z,Xd, P,phi,freq,damping,Decimate,D,dirdmd,f)
-    modeanimation([1],x,y,z,P,phi,freq,damping,LambdaDiag, b, Decimate,D,dirdmd,f,1,scalingfactor,meansteadystate,Xd,X)
+    %podmodes3dim(x,y,z,Xd, P,phi,freq,damping,Decimate,D,dirdmd,f)
+    %modeanimation([4],x,y,z,P,phi,freq,damping,LambdaDiag, b, Decimate,D,dirdmd,f,1,scalingfactor,meansteadystate,Xd,X)
 %% (5) REBUILD FLOW FIELD AND ASSESS DEVIATIONS
-
     part=5;subpart=1; [f]= MPC_progress(part,subpart,f,{},{}); 
-    [statesrebuild]=rebuild(phi,b,LambdaDiag,r,X,Xd); %rebuild states with highest order model
-  
+    [maxval,modeltouse]=max(FITje_val(2,:));
+    
+    if method==0
+        [statesrebuild]=rebuild(phi,b,LambdaDiag,r,X,Xd); %rebuild states with highest order model when no external forcing is done
+    else
+        model=length(sys_red);
+        if isempty(Xd)
+            statesrebuild=U(1:n,1:model)*xstates{model}';
+            statesrebuildvalid=U(1:n,1:modeltouse)*xstatesvalid{modeltouse}';
+        else
+            statesrebuild=U(1:n,1:model)*(xstates{model}(:,size(Xd,1)+1:end))';
+            statesrebuildvalid=U(1:n,1:modeltouse)*(xstatesvalid{modeltouse}(:,size(Xd,1)+1:end))';
+        end
+    end
+    
     if detrendingstates
         for i=1:size(statesrebuild,2)
             statesrebuild(:,i)=statesrebuild(:,i)*scalingfactor+meansteadystate;
+            statesrebuildvalid(:,i)=statesrebuildvalid(:,i)*scalingfactor+meansteadystate;
         end
     else
     end
     
     subpart=2; [f]= MPC_progress(part,subpart,f,{},{}); 
-    X=QQ_u(:,(begin-beg)+1:end-1);
+    X=QQ_u;
     comparereconstruction(X, statesrebuild,D,dirdmd,x,y,z,Decimate,dirName)
     
     subpart=3; [f]= MPC_progress(part,subpart,f,{},{}); 
+    valid=load(filenamevalid);
     evauatemodelerror(X, statesrebuild,D,dirdmd,filename,dirName,x,y,z,Decimate)
-    [statesfit]=evaluatetimevaryingerror(X,statesrebuild,dirdmd);
-   
+    [nrmse, nrmsevalid]=evaluatetimevaryingerror(X,statesrebuild,valid.QQ_u, statesrebuildvalid,dirdmd);
+    save(strcat(dirdmd,'/RECONSTRUCTION.mat'),'nrmse','nrmsevalid');
+    
     subpart=4; [f]= MPC_progress(part,subpart,f,{},{}); 
-    save(strcat(dirdmd,'/RESULTS.mat'),'sys_red','FITje','FITje_val','X','statesrebuild','statesfit','Inputs','Outputs','Deterministic','Inputs_val','Outputs_val','Deterministic_val');
+    
     close all
     close(f)
 %% (6) ECONOMIC MODEL PREDICTIVE CONTROL DESIGN 
-
-    [maxval,modeltouse]=max(FITje_val(2,:));
-    [yf1, yf2]=evaluatepredictionpower(sys_red, modeltouse,Inputs_val, Outputs_val,dt, [1 350],400,200);
-
-
+ %   
+ %   [yf1, yf2]=evaluatepredictionpower(sys_red, modeltouse,Inputs_val, Outputs_val,dt, [1 350],400,200);

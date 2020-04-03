@@ -57,13 +57,12 @@ elseif decision==1
         t=(0:mm1-1)*dt;  
 
         for iter=1:length(t)
-            time_dynamics(:,iter)=b(modes(mode)).*sin(omega(modes(mode))*t(iter));
+            time_dynamics(:,iter)=b(modes(mode)).*sin(omega(modes(mode))*2*pi*t(iter));
         end
 
-        statesrebuild=meansteadystate+phi(:,modes(mode))*time_dynamics*scalingfactor;
+        %statesrebuild=meansteadystate+phi(:,modes(mode))*time_dynamics*scalingfactor;
         %statesrebuild=meansteadystate;
-        %statesrebuild=phi(:,modes(mode))*time_dynamics*scalingfactor;
-        %statesrebuild=phi(:,modes(mode))*time_dynamics;
+        statesrebuild=phi(:,modes(mode))*time_dynamics*scalingfactor;
         modalanalysis{mode}=statesrebuild;
     end
 
@@ -80,7 +79,7 @@ elseif decision==1
             mkdir(dir);
         end
         
-        for t=1:size(modalanalysis{i},2)
+        for t=2:150
             count=count+1;
             
             phiunique{count}=reshape(real(modalanalysis{i}(:,t)), YY,XX,ZZ);
@@ -108,7 +107,7 @@ elseif decision==1
             maxi=max(max(max(phiunique{1})));
             mini=min(min(min(phiunique{1})));
             dif=maxi-mini;
-
+       
             %define want to see
             first=mini+dif/4;
             third=mini+dif/4*2;
@@ -141,7 +140,7 @@ elseif decision==1
             %lighting properties
             camlight
             lighting gouraud
-            mode=i;
+            mode=modes(i);
             %insert mode chracterisitcs in title
             title(['POD mode ', num2str(mode), ' evolution through time   |   St: ',num2str(round(freq(mode),4))...
             ,' fD/U  |   \xi: '  ,num2str(round(damping(mode),3)) '   |   || \phi ||:  ',num2str(round(P(mode),3))]);
@@ -157,11 +156,11 @@ elseif decision==1
         end
     end
     
-    for a=1:length(directo)
-        
-        makemoviewake(strcat('mode',num2str(modes(a))),directo{a});
-        
-    end
+%     for a=1:length(directo)
+%         
+%         makemoviewake(strcat('mode',num2str(modes(a))),directo{a});
+%         
+%     end
     
     
 end

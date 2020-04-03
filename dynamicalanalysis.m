@@ -1,4 +1,4 @@
-function [f,LambdaDiag, P, phi,damping,b]=dynamicalanalysis(sys_red, U, S,V, dt,X_p,X, method,mn,scaling,D,Uups,Deterministic,r,dirdmd)
+function [f,LambdaDiag, P, phi,damping,b]=dynamicalanalysis(sys_red, U, S,V, dt,X_p,X, method,mn,scaling,D,Uups,Deterministic,r,dirdmd,n,Xd)
 
 %% DMD STANDARD MODAL ANALYSIS
 
@@ -13,7 +13,7 @@ if method==2 %ioDMD
     if scaling==0
         %phi=X_p*V*inv(S)*W;
         phi=U(:,1:mn)*W;
-        b=phi\X(:,1);
+        b=phi(1:n,:)\X(1:n,1);
         P=abs(b);
         
     elseif scaling==1 %common scaling by eigenvalues
@@ -25,24 +25,25 @@ if method==2 %ioDMD
         P=(diag(phi'*phi));
     end
 
-%% STATES HAVE BEEN EXTENDED TO ACCOUNT FOR NON LINEAR OBSERVABLES
-
+%% STATES HAVE BEEN EXTENDED TO ACCOUNT FOR DETERMINISTIC VARIABLES
 elseif method==3 %extioDMD
-    
+    fromhere=size(Xd,1)+1;
     [W,Lambda]=eig(sys_red{mn}.A);
     LambdaDiag=diag(Lambda);
     omega=log(LambdaDiag)/dt/2/pi;
-    f=abs(imag(omega))*D/Uups; %convertion from Hz to Strouhal number
-    damping=-cos(atan2(imag(log(LambdaDiag)),real(log(LambdaDiag))));
-    
-    [sortedf,I]=sort(f);
-    sorteddamping=damping(I);
-    
+    ft=abs(imag(omega))*D/Uups; %convertion from Hz to Strouhal number
+    dampingt=-cos(atan2(imag(log(LambdaDiag)),real(log(LambdaDiag))));
+    f=ft(fromhere:end);
+    damping=dampingt(fromhere:end);
+
+
     if scaling==0
         %phi=X_p*V*inv(S)*W;
-        phi=blkdiag(eye(size(Deterministic,1),size(Deterministic,1)), U(:,1:mn))*W;
-        b=phi\[Deterministic(:,1);X(:,1)];
-        P=abs(b);
+        phii=blkdiag(eye(size(Deterministic,1),size(Deterministic,1)), U(:,1:mn))*W;
+        bt=phii\[Deterministic(:,1);X(1:n,1)];
+        phi=phii(fromhere:end,fromhere:end);
+        b=bt(fromhere:end);
+        P=(diag(phi'*phi)); 
         
     elseif scaling==1
         Ahat=(S(1:mn,1:mn)^(-1/2)) * sys_red{mn}.A * (S(1:mn,1:mn)^(1/2));

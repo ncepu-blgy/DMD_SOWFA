@@ -1,4 +1,4 @@
-function [dirpathcuthubheightvec]=cuthubheightvec(D,dirpathcuthubheightvec)
+function [dirpathcuthubheightvec]=cuthubheightvec(D,dirpathcuthubheightvec,cases)
 
 %% Directory 
 
@@ -7,7 +7,6 @@ if ~exist(dirpathcuthubheightvec,'dir')
 end
 
 n=1;
-cases = {'steps_yaw'};
 
 [nTurbine,time4,dt,nVal,thrust]        = readTurbineOutputGlobal(cases{n},'rotorAxialForce');
 [nTurbine,time4,dt,nVal,thrustv]       = readTurbineOutputGlobal(cases{n},'rotorVerticalForce');

@@ -1,4 +1,4 @@
-function [FITje,OMEGA,DAMPING,fig1]=evaluatemodel(sys_red,si,Inputs, Outputs,FITje,OMEGA,DAMPING,purpose)
+function [FITje,OMEGA,DAMPING,fig1,x]=evaluatemodel(sys_red,si,Inputs, Outputs,FITje,OMEGA,DAMPING,purpose,x)
 dN=2;
 %Estimate the initial state, given the estimated system matrices, and a  set of input/output data.
 
@@ -10,8 +10,9 @@ if a
     %% VARIANCE ACCOUNTED FOR IN THE MODEL FOR IDENTIFICATION DATA
     %time response of dynamic system based on (1) derived state space
     %model (2) system inputs (3) computed initial conditions 
-    ysim=lsim(sys_red{si}, [Inputs]',[],xo);   
+    [ysim, t, xout]=lsim(sys_red{si}, [Inputs]',[],xo);   
     maxL(si)=max(abs(eig(sys_red{si}.A)));
+    x{si}=xout;
 
     %compute the variance accounted for in the model based on simualton
     %of model and real output (for each time instant
@@ -28,7 +29,8 @@ if a
     xlabel('Time instant [ ]')
     ylabel(' \Omega_1 [rad/s]')
     title(['Model fitness: rotor speed for first turbine. VAF of ',num2str(FITje(1,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output'},'Location','southeast')
+    legend({'Real simulated rotor speed','Model Output'},'Location','bestoutside','Orientation','horizontal')
+    legend('boxoff')
     set(gca,'fontsize', 14)
 
     subplot(2,1,2)
@@ -39,15 +41,17 @@ if a
     xlabel('Time instant [ ]')
     ylabel(' \Omega_2 [rad/s]')
     title(['Model fitness: rotor speed for second turbine. VAF of ',num2str(FITje(2,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output'},'Location','southeast') 
+    legend({'Real simulated rotor speed','Model Output'},'Location','bestoutside','Orientation','horizontal') 
+    legend('boxoff')
     set(gca,'fontsize', 14)
 
     %% GRAPHICAL VISUALISAITON OF MODEL PREDICTION AND TRUE SIMULATION (VALIDATION) RESULTS
 else
     
      [xo_val]=dinit(sys_red{si}.A,sys_red{si}.B,sys_red{si}.C,sys_red{si}.D,[Inputs]',[Outputs]');
-     ysim_val=lsim(sys_red{si}, [Inputs]',[],xo_val);  
+     [ysim_val, t, xout]=lsim(sys_red{si}, [Inputs]',[],xo_val);  
      FITje(:,si)=vaf(ysim_val,[Outputs]');  
+     x{si}=xout;
     
     fig1=figure(2000+si);
     fig1.Visible='off';
@@ -60,7 +64,8 @@ else
     xlabel('Time instant [ ]')
     ylabel(' \Omega_1 [rad/s]')
     title(['Model fitness: rotor speed for first turbine. VAF of ',num2str(FITje(1,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output',''},'Location','southeast')
+    legend({'Real simulated rotor speed','Model Output',''},'Location','bestoutside','Orientation','horizontal')
+    legend('boxoff')
     set(gca,'fontsize', 14)
              
     subplot(2,1,2,'Visible','off')
@@ -71,7 +76,8 @@ else
     xlabel('Time instant [ ]')
     ylabel(' \Omega_2 [rad/s]')
     title(['Model fitness: rotor speed for second turbine. VAF of ',num2str(FITje(2,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output',''},'Location','southeast') 
+    legend({'Real simulated rotor speed','Model Output',''},'Location','bestoutside','Orientation','horizontal') 
+    legend('boxoff')
     set(gca,'fontsize', 14)
 
 end

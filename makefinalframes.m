@@ -1,4 +1,4 @@
-function [dirpathfinal]=makefinalframes(D,dirpathfinal)
+function [dirpathfinal]=makefinalframes(D,dirpathfinal,cases)
 
 %% Generate directory in external hard drive
 
@@ -18,7 +18,6 @@ warning on
 
 %% Read direct simulation data for turbine operation features
 n=1;
-cases = {'steps_yaw'};
 
 [nTurbine,time4,dt,nVal,thrust]        = readTurbineOutputGlobal(cases{n},'rotorAxialForce');
 [nTurbine,time4,dt,nVal,thrustv]       = readTurbineOutputGlobal(cases{n},'rotorVerticalForce');

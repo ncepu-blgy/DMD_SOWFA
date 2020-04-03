@@ -1,6 +1,5 @@
-function [dirpathvelfield]=plotvecfield(D,dirpathvelfield)
+function [dirpathvelfield]=plotvecfield(D,dirpathvelfield,cases)
 
-dirpathvelfield='/Volumes/NASSIR/MATLAB/power_velfield';
 if ~exist(dirpathvelfield,'dir') 
     mkdir(dirpathvelfield);
 end
@@ -17,7 +16,6 @@ warning on
 
 %% Read direct simulation data for turbine operation features
 n=1;
-cases = {'steps_yaw'};
 
 [nTurbine,time4,dt,nVal,thrust]        = readTurbineOutputGlobal(cases{n},'rotorAxialForce');
 [nTurbine,time4,dt,nVal,thrustv]       = readTurbineOutputGlobal(cases{n},'rotorVerticalForce');

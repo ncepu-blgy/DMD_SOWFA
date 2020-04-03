@@ -4,25 +4,10 @@ function []=visualisepodmodes(phi,f, P,x,y,z,Decimate,D,LambdaDiag,damping,metho
 %then visualise them 
 
 %% TAKE ONLY MODES RELATIVE TO RELEVANT STATES
-if isempty(Xd)
-
-    [sortedP,I]=sort(P,'descend');
-    sortedphi=phi(:,I);
-    sortedf=f(I);
-    sorteddamping=damping(I);
-
-else
-    fromhere=size(Xd,1)+1;
-    phit=phi(fromhere:end,fromhere:end);
-    ft=f(fromhere:end);
-    Pt=P(fromhere:end);
-    dampingt=damping(fromhere:end);
-
-    [sortedP,I]=sort(Pt,'descend');
-    sortedphi=phit(:,I);
-    sortedf=ft(I);
-    sorteddamping=dampingt(I);
-end
+[sortedP,I]=sort(P,'descend');
+sortedphi=phi(:,I);
+sortedf=f(I);
+sorteddamping=damping(I);
 
 %% RENAMING FOR PLOTTING
 P=sortedP;
@@ -143,10 +128,8 @@ elseif statesused > 100000
     plotmode(x,y,z,u,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
     
     set(gcf,'color','w','Position', get(0, 'Screensize'));    
-    shg
     export_fig(fig5,strcat(dirdmd,'/image','podmodesu'),'-nocrop','-m2'); 
     
-    shg
     
     %%
     
