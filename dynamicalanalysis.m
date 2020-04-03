@@ -39,7 +39,7 @@ elseif method==3 %extioDMD
 
     if scaling==0
         %phi=X_p*V*inv(S)*W;
-        phii=blkdiag(eye(size(Deterministic,1),size(Deterministic,1)), U(:,1:mn))*W;
+        phii=blkdiag(eye(size(Deterministic,1),size(Deterministic,1)), U(1:n,1:mn))*W;
         bt=phii\[Deterministic(:,1);X(1:n,1)];
         phi=phii(fromhere:end,fromhere:end);
         b=bt(fromhere:end);

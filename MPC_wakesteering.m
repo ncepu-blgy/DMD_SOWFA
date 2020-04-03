@@ -53,7 +53,7 @@ part=0; subpart=1; [f]= MPC_progress(part,subpart,{},{},{});
     end
     
     detrendingstates=1; %1 to take mean flow 
-    method=2; %0: DMD ; 1:DMDc; 2:ioDMD; 3:extioDMD
+    method=3; %0: DMD ; 1:DMDc; 2:ioDMD; 3:extioDMD
     koopman=1;
     videos=0;
     snapshots=0;
@@ -169,7 +169,7 @@ part=2; subpart=1; [f]= MPC_progress(part,subpart,f,{},{});
     subpart=5; [f]= MPC_progress(part,subpart,f,{},{}); 
     r=200; %define truncation level for Singular Value Decomposition 
     
-on mo    [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd,xstates]=dynamicmodedecomposition(states,Inputs, Outputs, Deterministic,method,r,maindir,f); 
+    [sys_red,FITje,U,S,V,method,X,X_p,Xd,dirdmd,xstates]=dynamicmodedecomposition(states,Inputs, Outputs, Deterministic,method,r,maindir,f); 
 
 %% (3) DATA VALIDATION 
     part=3; subpart=1; [f]= MPC_progress(part,subpart,f,{},{}); 
