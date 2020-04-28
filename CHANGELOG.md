@@ -18,10 +18,10 @@
 8. Program automatically saves 3 important results: the FIT for the two turbines for validation models, the reconstruction error for the states and the main results arising from the SVD. These allows to compare the variables for different methods used.
 
 ### Monday, 13th April
--
+*Thesis writing*
 
 ### Monday, 20th April
--
+*Thesis writing*
 
 ### Monday, 27th April
 1. Function *power_referencetracking.m* created. Allows to perform simulations based on MPC controller that directly computes optimal solution for optimisation problem (not constrained on inputs/outputs or control action)
