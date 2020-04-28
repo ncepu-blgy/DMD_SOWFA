@@ -1,21 +1,25 @@
-function [Inputs, Outputs, Deterministic]=preprocessdmdval(beg, rotSpeed,time1,rotorAzimuth,nacelleYaw,pitchmode, pitch,scalingfactors)
+function [Inputs, Outputs, Deterministic]=preprocessdmdval(beg, rotSpeed,time1,rotorAzimuth,nacelleYaw,pitchmode, pitch,scalingfactors,powerGenerator)
 
 %% EVALUATE RELEVANT STATES TO BE UED 
-X1=detrend(rotSpeed(end-beg*10:1:end,1)');
-X2=detrend(rotSpeed(end-beg*10:1:end,2)');
+% X1=detrend(rotSpeed(end-beg*10:1:end,1)');
+% X2=detrend(rotSpeed(end-beg*10:1:end,2)');
+% 
+% [X1] = resampleedgeeffect(X1,10); %rotor speed of turbine 1 as first output
+% [X2] = resampleedgeeffect(X2,10); %rotor speed of turbine 2 as second output
+X1=resample(detrend(rotSpeed(end-750*10:1:end,1)'),1,10);
+X2=resample(detrend(rotSpeed(end-750*10:1:end,2)'),1,10);
+X3=resample(detrend(rotSpeed(end-750*10:1:end,1)'),1,10).^2;
+X4=resample(detrend(rotSpeed(end-750*10:1:end,2)'),1,10).^2;
 
-[X1] = resampleedgeeffect(X1,10); %rotor speed of turbine 1 as first output
-[X2] = resampleedgeeffect(X2,10); %rotor speed of turbine 2 as second output
-
-X1=X1./scalingfactors(1);
-X2=X2./scalingfactors(2);
+X1=X1./scalingfactors(4);
+X2=X2./scalingfactors(5);
 
 %%
-X3=X1.^2;
-X4=X2.^2;
+% X3=X1.^2;
+% X4=X2.^2;
 
-X3=X3./scalingfactors(4);
-X4=X4./scalingfactors(5);
+X3=X3./scalingfactors(6);
+X4=X4./scalingfactors(7);
 
 % X3=resample(rotSpeed(end-beg*10:1:end,1),1,10).^2;
 % X4=resample(rotSpeed(end-beg*10:1:end,2),1,10).^2;
@@ -24,8 +28,22 @@ X4=X4./scalingfactors(5);
 
 %% OUTPUTS
 %the rotor speeds of the two turbines are defined as outputs of the wind turbine system 
-Y1=X1;
-Y2=X2;
+%POWER OUTPUT
+ Y1=detrend(powerGenerator(end-beg*10:1:end,1)');
+  Y2=detrend(powerGenerator(end-beg*10:1:end,2)');
+% % 
+ [Y1] = resampleedgeeffect(Y1*1e-6,10); %rotor speed of turbine 1 as first output
+  [Y2] = resampleedgeeffect(Y2*1e-6,10);
+
+% Y1=resample(detrend(powerGenerator(end-750*10:1:end,1)*1e-6'),1,10);
+% Y2=resample(detrend(powerGenerator(end-750*10:1:end,2)*1e-6'),1,10);
+% 
+ Y1=Y1./scalingfactors(1);
+ Y2=Y2./scalingfactors(2);
+ 
+%ROTOR SPEED OUTPUT
+% Y1=X1;
+% Y2=X2;
 
 Outputs=[Y1;Y2];
 
@@ -93,4 +111,3 @@ end
 %% DETERMINISTIC STATES
 Deterministic=[X1; X2; X3; X4]; 
 %Deterministic={};
-

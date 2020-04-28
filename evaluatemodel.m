@@ -27,9 +27,9 @@ if a
     plot(ysim(:,1),'g--','LineWidth',1.6) %3
     grid on
     xlabel('Time instant [ ]')
-    ylabel(' \Omega_1 [rad/s]')
-    title(['Model fitness: rotor speed for first turbine. VAF of ',num2str(FITje(1,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output'},'Location','bestoutside','Orientation','horizontal')
+    ylabel(' Power [MW]')
+    title(['Model fitness: generator power for second turbine. VAF of ',num2str(FITje(1,si)),' % '])
+    legend({'Real Generator Power','Model Output'},'Location','bestoutside','Orientation','horizontal')
     legend('boxoff')
     set(gca,'fontsize', 14)
 
@@ -39,8 +39,8 @@ if a
     plot(ysim(:,2),'g--','LineWidth',1.6) %2
     grid on
     xlabel('Time instant [ ]')
-    ylabel(' \Omega_2 [rad/s]')
-    title(['Model fitness: rotor speed for second turbine. VAF of ',num2str(FITje(2,si)),' % '])
+    ylabel(' Power [MW]')
+    title(['Model fitness: generator power for second turbine. VAF of ',num2str(FITje(2,si)),' % '])
     legend({'Real simulated rotor speed','Model Output'},'Location','bestoutside','Orientation','horizontal') 
     legend('boxoff')
     set(gca,'fontsize', 14)
@@ -62,9 +62,9 @@ else
     plot(ysim_val(:,1),'g--','LineWidth',1.6) %3
     grid on
     xlabel('Time instant [ ]')
-    ylabel(' \Omega_1 [rad/s]')
-    title(['Model fitness: rotor speed for first turbine. VAF of ',num2str(FITje(1,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output',''},'Location','bestoutside','Orientation','horizontal')
+    ylabel(' Power [MW]')
+    title(['Model fitness: generator power for first turbine. VAF of ',num2str(FITje(1,si)),' % '])
+    legend({'Real simulated generator power','Model Output',''},'Location','bestoutside','Orientation','horizontal')
     legend('boxoff')
     set(gca,'fontsize', 14)
              
@@ -74,9 +74,9 @@ else
     plot(ysim_val(:,2),'g--','LineWidth',1.6)
     grid on
     xlabel('Time instant [ ]')
-    ylabel(' \Omega_2 [rad/s]')
-    title(['Model fitness: rotor speed for second turbine. VAF of ',num2str(FITje(2,si)),' % '])
-    legend({'Real simulated rotor speed','Model Output',''},'Location','bestoutside','Orientation','horizontal') 
+    ylabel(' Power [MW]')
+    title(['Model fitness: generator power for second turbine. VAF of ',num2str(FITje(2,si)),' % '])
+    legend({'Real simulated generator power','Model Output',''},'Location','bestoutside','Orientation','horizontal') 
     legend('boxoff')
     set(gca,'fontsize', 14)
 

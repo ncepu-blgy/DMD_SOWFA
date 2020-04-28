@@ -1,4 +1,4 @@
-function [rotSpeed, nacelleYaw, time1,rotorAzimuth,pitch]=readdmdinformation(dirName)
+function [rotSpeed, nacelleYaw, time1,rotorAzimuth,pitch,powerGenerator]=readdmdinformation(dirName)
 
 for j=1:1:length(dirName)
     cd(dirName{j})  

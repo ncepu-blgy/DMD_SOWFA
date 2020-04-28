@@ -50,28 +50,28 @@ set(gcf,'color','w','Position', get(0, 'Screensize'));
 %sid=scatter(timevec(82:end),meandeltainstp(82:end),'o');
 sid=scatter(timevec(82:end),nrmse(82:end),'o');
 hold on
-sid.MarkerFaceColor = [0.2 0.6 0.8];
-sid.MarkerEdgeColor = [0.2 0.6 0.8];
-pid=plot(nrmse,'LineWidth',1.1','color','blue');
+sid.MarkerFaceColor = [0.8 0.1 0.1];
+sid.MarkerEdgeColor = [0.8 0.1 0.1];
+pid=plot(nrmse,'LineWidth',1.1','color','red');
 pid.LineStyle='- -';
-pid.Color=[0.8 0.8 1];
+pid.Color=[1 0.8 0.8];
 
 hold on
 sidvalid=scatter(timevec(82:end),nrmsevalid(82:end),'o');
-sidvalid.MarkerFaceColor = [0.2 0.8 0.2];
-sidvalid.MarkerEdgeColor = [0.2 0.8 0.2];
+sidvalid.MarkerFaceColor = [0.1 0.1 0.9];
+sidvalid.MarkerEdgeColor = [0.1 0.1 0.9];
 pidvalid=plot(nrmsevalid,'LineWidth',1.1','color','green');
 pidvalid.LineStyle='- -';
-pidvalid.Color=[0.8 1 0.8];
+pidvalid.Color=[0.8 0.8 1];
 
 xlabel('Time [minutes]');
-axis([-0.3667 750 0 max(nrmse)+5])
+axis([-0.3667 750 0 60])
 ax=gca;
 set(gca,'XTick',(0-0.3667:60:max(timevec))+1)
 ax.XTickLabel = {'8','10','12','14','16','18','20','22','24','26','28','30','32','34'};
 set(gca,'YTick',0:5:60)
-ylabel('Mean instantaneous deviaton from true state (%) ');
-title('Dynamic Mode Decomposition State Reconstruction: Normalized Root Mean Squared Error');
+ylabel('Normalized Root Mean Squared Error (%) ');
+title('Dynamic Mode Decomposition State Reconstruction: Normalized Root Mean Squared Error through time');
 set(gca, 'FontSize', 14);
 grid on
 grid minor

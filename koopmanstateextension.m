@@ -25,6 +25,9 @@ end
 
 % RANS
     uv=-detu.*detv*rho;
+    
+    absveldet=detu.^2+detv.^2+detw.^2;
+    absveldet=detu.^2+detv.^2+detw.^2;
 
 %% Declare Non Linear Observables for states extension
-nonlobs=meanv;
+nonlobs=detu;

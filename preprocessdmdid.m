@@ -1,21 +1,31 @@
-function [Inputs, Outputs, Deterministic,scalingfactors]=preprocessdmdid(beg, rotSpeed,time1,rotorAzimuth,nacelleYaw,pitchmode, pitch)
+function [Inputs, Outputs, Deterministic,scalingfactors]=preprocessdmdid(beg, rotSpeed,time1,rotorAzimuth,nacelleYaw,pitchmode, pitch,powerGenerator)
 
 %% EVALUATE RELEVANT STATES TO BE UED 
-X1=detrend(rotSpeed(end-beg*10:1:end,1)');
-X2=detrend(rotSpeed(end-beg*10:1:end,2)');
-
-[X1] = resampleedgeeffect(X1,10); %rotor speed of turbine 1 as first output
-[X2] = resampleedgeeffect(X2,10); %rotor speed of turbine 2 as second output
-s1=var(X1);
-s2=var(X2); 
+ X1=detrend(rotSpeed(end-beg*10:1:end,1)');
+ X2=detrend(rotSpeed(end-beg*10:1:end,2)');
+ X3=detrend(rotSpeed(end-beg*10:1:end,1).^2');
+ X4=detrend(rotSpeed(end-beg*10:1:end,2).^2');
+% 
+ [X1] = resampleedgeeffect(X1,10); %rotor speed of turbine 1 as first output
+ [X2] = resampleedgeeffect(X2,10);
+ [X3] = resampleedgeeffect(X3,10);
+ [X4] = resampleedgeeffect(X4,10);
+ %rotor speed of turbine 2 as second output
+% X1=resample(detrend(rotSpeed(end-750*10:1:end,1)'),1,10);
+% X2=resample(detrend(rotSpeed(end-750*10:1:end,2)'),1,10);
+% X3=resample(detrend(rotSpeed(end-750*10:1:end,1)'),1,10).^2;
+% X4=resample(detrend(rotSpeed(end-750*10:1:end,2)'),1,10).^2;
+       
+s4=var(X1);
+s5=var(X2); 
 X1=X1./var(X1);
 X2=X2./var(X2);
 
 %%
-X3=X1.^2;
-X4=X2.^2;
-s4=var(X3); %scaling fator of first deterministc states
-s5=var(X4);
+% X3=X1.^2;
+% X4=X2.^2;
+s6=var(X3); %scaling factor of first deterministc states
+s7=var(X4);
 X3=X3./var(X3);
 X4=X4./var(X4);
 
@@ -26,8 +36,26 @@ X4=X4./var(X4);
 
 %% OUTPUTS
 %the rotor speeds of the two turbines are defined as outputs of the wind turbine system 
-Y1=X1;
-Y2=X2;
+
+%OUTPUT POWER 
+% Y1=resample(detrend(powerGenerator(end-750*10:1:end,1)*1e-6'),1,10);
+% Y2=resample(detrend(powerGenerator(end-750*10:1:end,2)*1e-6'),1,10);
+
+  Y1=detrend(powerGenerator(end-beg*10:1:end,1)');
+  Y2=detrend(powerGenerator(end-beg*10:1:end,2)');
+% 
+  [Y1] = resampleedgeeffect(Y1*10^-6,10); %rotor speed of turbine 1 as first output
+  [Y2] = resampleedgeeffect(Y2*10^-6,10);
+% % 
+ s1=var(Y1);
+ s2=var(Y2); 
+ 
+ Y1=Y1./var(Y1);
+ Y2=Y2./var(Y2);
+
+%OUTPUT ROTOR SPEED
+% Y1=X1;
+% Y2=X2;
 
 Outputs=[Y1;Y2];
 
@@ -111,7 +139,7 @@ Deterministic=[X1; X2; X3; X4];
 %scaling factor for deterministic states: S4
 %scaling factor of second deterministc state: S5
 
-scalingfactors=[s1;s2; s3;s4;s5];
+scalingfactors=[s1;s2;s3;s4;s5;s6;s7];
 
 
 

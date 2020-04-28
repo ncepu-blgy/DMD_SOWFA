@@ -123,7 +123,7 @@ elseif statesused > 100000
     subplot(5,2,9)
     plotmode(x,y,z,u,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
     
-    mode=200;
+    mode=150;
     subplot(5,2,10)
     plotmode(x,y,z,u,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
     
@@ -171,7 +171,7 @@ elseif statesused > 100000
     subplot(5,2,9)
     plotmode(x,y,z,v,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
     
-    mode=200;
+    mode=150;
     subplot(5,2,10)
     plotmode(x,y,z,v,mode,Decimate,D,f,phi,P,LambdaDiag,damping)
     
